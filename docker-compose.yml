@@ -69,5 +69,5 @@ services:
       FRONTEND_HOST: '${CONTAINER_PREFIX}${FRONTEND_CONTAINER}'
       BACKEND_HOST: '${CONTAINER_PREFIX}${BACKEND_CONTAINER}'
 volumes:
-  mariadb:
+  postgres:
   enlive-vendor:
