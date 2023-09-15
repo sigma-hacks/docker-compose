@@ -14,9 +14,7 @@ services:
       - enlive-vendor:/var/www/html/backend/vendor
       - ./cfg/docker-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
       - ./cfg/php.ini-production:/usr/local/etc/php/php.ini-production
-      - ./cfg/php.ini-development:/usr/local/etc/php/php.ini-development
       - ./cfg/${PHP_MODE}:/usr/local/etc/php/php.ini
-      - ./cfg/crontab:/etc/cron.d/crontab
     depends_on:
       - db
       - redis
