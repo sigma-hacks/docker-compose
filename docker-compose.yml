@@ -35,18 +35,17 @@ services:
       - nginx
   db:
     container_name: '${CONTAINER_PREFIX}${DATABASE_CONTAINER}'
-    image: mariadb
+    image: postgres
     restart: unless-stopped
     ports:
-      - "${MYSQL_IP}:${MYSQL_PORT_OUTER}:${MYSQL_PORT_INNER}"
+      - "${DB_IP}:${DB_PORT_OUTER}:${DB_PORT_INNER}"
     environment:
-      MYSQL_DATABASE: "${MYSQL_DATABASE}"
-      MYSQL_USER: "${MYSQL_USER}"
-      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-      MYSQL_ROOT_PASSWORD: "${MYSQL_PASSWORD}"
+      POSTGRES_DB: "${DB_NAME}"
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
       TZ: Europe/Moscow
     volumes:
-      - "mariadb:/var/lib/mysql"
+      - "postgres:/var/lib/postgresql/data"
   redis:
     container_name: '${CONTAINER_PREFIX}${REDIS_CONTAINER}'
     image: redis:latest
