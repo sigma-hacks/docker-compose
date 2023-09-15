@@ -1,0 +1,24 @@
+# app
+/frontend
+/backend
+/backups
+/websocket
+/frontend/*
+/backend/*
+/backups/*
+/websocket/*
+
+# editors
+.vscode
+.vs*
+.storm
+.phpstorm
+.ps*
+.idea
+
+# project temporary
+/tmp
+/tmp/*
+
+# configs
+.env

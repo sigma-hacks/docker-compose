@@ -1,0 +1,74 @@
+version: "3.9"
+services:
+  backend:
+    container_name: '${CONTAINER_PREFIX}${BACKEND_CONTAINER}'
+    build:
+      context: ./backend
+      dockerfile: ${SERVER_MODE}.Dockerfile
+      args:
+        UID: ${USER_ID}
+        GID: ${GROUP_ID}
+    restart: unless-stopped
+    volumes:
+      - ./backend:/var/www/html/backend
+      - enlive-vendor:/var/www/html/backend/vendor
+      - ./cfg/docker-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./cfg/php.ini-production:/usr/local/etc/php/php.ini-production
+      - ./cfg/php.ini-development:/usr/local/etc/php/php.ini-development
+      - ./cfg/${PHP_MODE}:/usr/local/etc/php/php.ini
+      - ./cfg/crontab:/etc/cron.d/crontab
+    depends_on:
+      - db
+      - redis
+  frontend:
+    container_name: '${CONTAINER_PREFIX}${FRONTEND_CONTAINER}'
+    build:
+      context: ./frontend
+      args:
+        UID: ${USER_ID}
+        GID: ${GROUP_ID}
+    restart: unless-stopped
+    volumes:
+      - ./frontend:/var/www/html/frontend
+    depends_on:
+      - backend
+      - nginx
+  db:
+    container_name: '${CONTAINER_PREFIX}${DATABASE_CONTAINER}'
+    image: mariadb
+    restart: unless-stopped
+    ports:
+      - "${MYSQL_IP}:${MYSQL_PORT_OUTER}:${MYSQL_PORT_INNER}"
+    environment:
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_PASSWORD}"
+      TZ: Europe/Moscow
+    volumes:
+      - "mariadb:/var/lib/mysql"
+  redis:
+    container_name: '${CONTAINER_PREFIX}${REDIS_CONTAINER}'
+    image: redis:latest
+    command: "redis-server --requirepass ${REDIS_PASSWORD}"
+    ports:
+      - "${REDIS_IP}:${REDIS_PORT_OUTER}:${REDIS_PORT_INNER}"
+  nginx:
+    container_name: '${CONTAINER_PREFIX}${NGINX_CONTAINER}'
+    image: nginx:1.21-alpine
+    restart: unless-stopped
+    ports:
+      - "${NGINX_IP}:${NGINX_PORT_OUTER}:${NGINX_PORT_INNER}"
+    volumes:
+      - "./backend:/var/www/html/backend"
+      - "enlive-vendor:/var/www/html/backend/vendor"
+      - "./frontend:/var/www/html/frontend"
+      - "./nginx/${NGINX_CONFIG}:/etc/nginx/templates/default.conf.template"
+    depends_on:
+      - backend
+    environment:
+      FRONTEND_HOST: '${CONTAINER_PREFIX}${FRONTEND_CONTAINER}'
+      BACKEND_HOST: '${CONTAINER_PREFIX}${BACKEND_CONTAINER}'
+volumes:
+  mariadb:
+  enlive-vendor:
